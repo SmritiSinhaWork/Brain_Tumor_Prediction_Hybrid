@@ -39,7 +39,7 @@ An AI-powered web application for detecting brain tumors from MRI scan images us
 ## Project Structure
 
 ```bash
-Brain_Tumor_Prediction_Hybrid/
+project/
 │── app.py
 │── model.py
 │── dmd.py
