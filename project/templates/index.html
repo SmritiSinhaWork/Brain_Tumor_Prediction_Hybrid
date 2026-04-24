@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Diagnostic System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            margin: auto;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 14px;
+            color: #ddd;
+        }
+
+        input[type="file"] {
+            margin: 20px 0;
+            padding: 10px;
+            background: #fff;
+            border-radius: 5px;
+            border: none;
+            width: 100%;
+        }
+
+        button {
+            background: linear-gradient(to right, #0072ff, #00c6ff);
+            border: none;
+            padding: 12px 20px;
+            color: white;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        .features {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #ccc;
+        }
+
+        .preview {
+            margin-top: 15px;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #00e6e6;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 255, 150, 0.15);
+            border-radius: 10px;
+            border: 1px solid #00ffcc;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>AI Diagnostic System</h1>
+    <p>Upload your medical image and get instant AI-powered analysis.</p>
+
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="file" id="fileInput" accept="image/*" required>
+        
+        <div class="preview">
+            <img id="imagePreview" src="" alt="" style="display:none;">
+        </div>
+
+        <button type="submit">Analyze Image</button>
+    </form>
+
+    <div class="loading" id="loadingText">
+        Processing with AI model... Please wait ⏳
+    </div>
+
+    <!-- RESULT BOX -->
+    <div class="result-box" id="resultBox" style="display:none;">
+        <h3>Diagnosis Result</h3>
+        <p id="resultText"></p>
+    </div>
+
+    <div class="features">
+        <p>✔ AI-powered medical image analysis</p>
+        <p>✔ Fast & optimized deep learning model</p>
+        <p>✔ High accuracy predictions</p>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById("fileInput");
+    const preview = document.getElementById("imagePreview");
+    const form = document.getElementById("uploadForm");
+    const loadingText = document.getElementById("loadingText");
+    const resultBox = document.getElementById("resultBox");
+    const resultText = document.getElementById("resultText");
+
+    // Image preview
+    fileInput.addEventListener("change", function () {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = "block";
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // AJAX form submission
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        loadingText.style.display = "block";
+        resultBox.style.display = "none";
+
+        fetch("/predict", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            loadingText.style.display = "none";
+            resultBox.style.display = "block";
+
+            resultText.innerText = `Prediction: ${data.prediction}`;
+
+            // Change border color based on result
+            if (data.prediction.toLowerCase().includes("normal")) {
+                resultBox.style.border = "1px solid #00ffcc";
+            } else {
+                resultBox.style.border = "1px solid #ff4d4d";
+            }
+        })
+        .catch(error => {
+            loadingText.style.display = "none";
+            resultBox.style.display = "block";
+            resultText.innerText = "Error processing image.";
+        });
+    });
+</script>
+
+</body>
+</html>
